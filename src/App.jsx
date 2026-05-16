@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+     import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, doc, onSnapshot, updateDoc, setDoc, addDoc, serverTimestamp } from 'firebase/firestore';
-import { Bell, Clock, Users, MessageSquare, AlertCircle, Archive, Check, X, MessageCircle, Info, Activity, Plus, Hash, Settings, Send, Smartphone } from 'lucide-react';
+import { getFirestore, collection, doc, onSnapshot, updateDoc, setDoc, addDoc, serverTimestamp, getDocs, deleteDoc } from 'firebase/firestore';
+import { Bell, Clock, Archive, Check, X, MessageCircle, Activity, Hash, Settings, Smartphone, Trash2 } from 'lucide-react';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAoVkhpsSmak7-dfr08suTiFGDojpXLoic",
@@ -119,6 +119,15 @@ const App = () => {
     });
   };
 
+  const borrarHistorial = async () => {
+    if (!window.confirm('¿Borrar todo el historial de alertas?')) return;
+    const lRef = collection(db, 'artifacts', APP_ID, 'public', 'data', 'logs');
+    const snap = await getDocs(lRef);
+    snap.docs.forEach(async (d) => {
+      await deleteDoc(doc(db, 'artifacts', APP_ID, 'public', 'data', 'logs', d.id));
+    });
+  };
+
   if (loading) return <div className="h-screen flex items-center justify-center bg-slate-50 text-indigo-600 font-black animate-pulse">CARGANDO...</div>;
 
   return (
@@ -226,7 +235,10 @@ const App = () => {
                   </div>
                 ))}
               </div>
-              <div className="mt-4 pt-4 border-t border-slate-100">
+              <div className="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                <button onClick={borrarHistorial} className="w-full flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-500 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">
+                  <Trash2 size={12}/> Borrar Historial
+                </button>
                 <div className="bg-indigo-50 p-4 rounded-2xl">
                   <p className="text-[10px] text-indigo-700 font-bold leading-tight">La alarma se activa cuando las 3 áreas emiten respuesta.</p>
                 </div>
@@ -274,4 +286,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default App;         
